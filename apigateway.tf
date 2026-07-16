@@ -48,18 +48,18 @@ resource "aws_apigatewayv2_route" "order" {
 }
 
 # --- /api/product/* -> external service --------------------------------------
-# The {proxy} captured here is appended to the target URL, so /api/product/123
-# becomes <product_service_url>/123.
+# {proxy} in the URI is substituted with whatever follows /api/product/, so
+# /api/product/123 becomes <product_service_url>/123.
+#
+# No "overwrite:path" here: it replaces the ENTIRE path, which would discard the
+# path component of product_service_url (e.g. httpbin's /anything) and send bare
+# /123 upstream — a 404. The {proxy} substitution alone is what's wanted.
 
 resource "aws_apigatewayv2_integration" "product" {
   api_id             = aws_apigatewayv2_api.this.id
   integration_type   = "HTTP_PROXY"
   integration_method = "ANY"
   integration_uri    = "${var.product_service_url}/{proxy}"
-
-  request_parameters = {
-    "overwrite:path" = "$request.path.proxy"
-  }
 }
 
 resource "aws_apigatewayv2_route" "product" {
