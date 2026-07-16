@@ -32,6 +32,10 @@ variable "aws_region" {
 }
 
 variable "product_service_url" {
-  description = "External service /api/product/* is proxied to, e.g. https://example.com/product"
+  description = "External service /api/product/* is proxied to."
   type        = string
+
+  # ponytail: placeholder — httpbin echoes the request back, so the proxy route is
+  # verifiable end to end. Swap for the real service URL when it exists.
+  default = "https://httpbin.org/anything"
 }
