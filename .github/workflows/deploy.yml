@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ponytail: temporary — prints the OIDC token's claims so we can see the real
+      # sub/aud instead of guessing. Delete once the assume-role failure is solved.
+      - name: debug OIDC claims
+        run: |
+          curl -sH "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
+            | cut -d. -f2 | base64 -d 2>/dev/null | tr ',' '\n' \
+            | grep -E '"(sub|aud|iss|repository|repository_owner)"'
+
       # Role name is set by aws-foundation's deploy-role module and follows the
       # "<repo>-deploy" convention, so the ARN is derivable — no repo variables to set.
       # Rename the role there and this string must follow.
